@@ -5,6 +5,7 @@ closed.
 """
 import imp
 import os
+import warnings
 
 try:
     import importlib.machinery as importlib_machinery
@@ -60,6 +61,13 @@ def pytest_runtest_setup(item):
     # against them when the test is done.
     if item.config.getvalue('open_files') and not item.get_marker('openfiles_ignore'):
         item.open_files = _get_open_file_list()
+
+
+def pytest_runtest_call(item):
+
+    with warnings.catch_warnings(record=True) as w:
+        warnings.simplefilter('error', ResourceWarning)
+        item.runtest()
 
 
 def pytest_runtest_teardown(item, nextitem):
